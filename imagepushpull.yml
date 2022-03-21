@@ -1,0 +1,35 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      docker pull stacksimplify/kube-nginxapp1:1.0.0
+      docker tag stacksimplify/kube-nginxapp1:1.0.0 demo2conreg.azurecr.io/demoimage:$(Build.BuildId)
+- task: Docker@2
+  inputs:
+    containerRegistry: 'demo2-acr-conn'
+    repository: 'demoimage'
+    command: 'push'
+- task: CopyFiles@2
+  displayName: 'Copy Deployment Artifacts'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/testchart'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifacts DEV'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'DEV-ARTIFACTS'
+    publishLocation: 'Container'

@@ -1,0 +1,48 @@
+pool:
+  vmImage: ubuntu-latest
+stages:
+# Dev env CD
+  - stage:    
+    displayName: Deploy in Dev env
+    jobs:
+      - job:
+        steps:
+        - task: DownloadBuildArtifacts@1
+          displayName: 'Download Build Artifacts'
+          inputs:
+            buildType: specific
+            project: 'c9678053-f336-4a27-adcb-911041b7cd67'
+            pipeline: 1
+            specificBuildWithTriggering: true
+            downloadType: specific
+            downloadPath: '$(System.DefaultWorkingDirectory)'
+            checkDownloadedFiles: true
+        - task: HelmInstaller@0
+          displayName: 'Install Helm 3.5.3'
+          inputs:
+            helmVersion: 3.5.3
+        - task: HelmDeploy@0
+          displayName: 'helm upgrade'
+          inputs:
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceConnection: 'AKS-SERV-CONN-INGRESS-BASIC'
+              namespace: 'ingress-basic'
+              command: upgrade
+              chartType: FilePath
+              chartPath: '$(System.DefaultWorkingDirectory)/_PIPELINEchecker/dev'
+              chartVersion: '$(Release.ReleaseID)'
+              releaseName: testchart
+              valueFile: '$(System.DefaultWorkingDirectory)/_PIPELINEchecker/dev/values.yaml'
+              waitForExecution: false
+        - task: HelmDeploy@0
+          displayName: 'helm ls'
+          inputs:
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceConnection: 'AKS-SERV-CONN-INGRESS-BASIC'
+        - task: Kubernetes@1
+          displayName: 'kubectl get'
+          inputs:
+              kubernetesServiceEndpoint: 'AKS-SERV-CONN-INGRESS-BASIC'
+              namespace: 'Ingress-basic'
+              command: get
+              arguments: all

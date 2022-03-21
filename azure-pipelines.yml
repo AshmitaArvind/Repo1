@@ -1,0 +1,68 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+variables:
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+parameters:
+- name: DEV
+  type: boolean
+  default: false
+- name: TEST
+  type: boolean
+  default: false
+- name: QA
+  type: boolean
+  default: false
+- name: PROD
+  type: boolean
+  default: false
+  # Pipeline-related parameters
+  serviceConnection: '$(vmImageName)'
+  poolName: '$(vmImageName)'
+  vmImage: '$(vmImageName)'
+  defaultJobTimeoutInMinutes: 120
+  checkoutRepositories: ''
+  dependsOn: []
+  # Logic-related parameters
+  removeDeployment: false
+  moduleName: '$(vmImageName)'
+  modulePath: '$(vmImageName)'
+  parametersPath: '$(vmImageName)'
+  modulesPath: '$(vmImageName)'
+  deploymentBlocks: ''
+  parametersRepository: '$(vmImageName)'
+  location: '$(location)'
+  resourceGroupName: '$(vmImageName)'
+  subscriptionId: "$(vmImageName)"
+  managementGroupId: '$(vmImageName)'
+  # Azure PowerShell Version parameters
+  azurePowerShellVersion: '$(vmImageName)'
+  preferredAzurePowerShellVersion: '$(vmImageName)'
+  # Pipeline Orchestrated (Key Vault) Parameters
+  pokv: false # Switch to enable temporary POKV deployment
+  modulesRepository: '$(vmImageName)'
+  keyVaultName: '$(vmImageName)'
+  artifactName: '$(vmImageName)'  
+  environment: '$(vmImageName)'
+  secretsFilter: '$(vmImageName)'
+  templateFile: '$(vmImageName)' 
+  parametersFile: '$(vmImageName)'
+  overrideParameters: '$(vmImageName)'
+  scriptArguments: '$(vmImageName)'
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'

@@ -1,0 +1,47 @@
+parameters: 
+  - name: environment_name
+    default: dev
+  - name: branchselected
+    default: ashpande/developbranch
+
+
+jobs:
+- job: SnykSCAScan
+  displayName: Docker build and Snyk SCA Scan
+  strategy:
+    parallel: 1
+  variables:
+    - template: /variables/app/brewdat-fe-drb-var-${{ parameters.environment_name }}.yaml
+  steps:
+  - task: Powershell@2
+    displayName: 'branch change for stage : ${{ parameters.environment_name }}'
+    inputs:
+      targettype: 'inline'
+      script: |
+        git checkout ${{ parameters.branchselected }}
+        git reset --hard origin/${{ parameters.branchselected }}
+        git branch --show-current
+      workingdirectory: '$(build.sourcesdirectory)'
+  - task: PowerShell@2
+    displayName: 'Setting tag'
+    inputs:
+      targetType: 'inline'
+      script: 'Write-Host "##vso[build.addbuildtag]${{ parameters.environment_name }}"'    
+  - task: CopyFiles@2
+    displayName: 'Copy Deployment Artifacts'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/testchart'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifacts ${{ parameters.environment_name }}'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: '${{ parameters.environment_name }}'
+      publishLocation: 'Container'
+  # - task: PowerShell@2
+  #   displayName: 'Clean Up'
+    # how to clean up the directory which has been added as per the "Branch change" task(1st task in steps) 
+
+  # please check this task
+

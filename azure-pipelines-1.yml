@@ -1,0 +1,23 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+parameters:
+- name: DEV
+  type: boolean
+  default: false
+- name: TEST
+  type: boolean
+  default: false
+- name: QA
+  type: boolean
+  default: true
+- name: PROD
+  type: boolean
+  default: true
+
+steps:
+  - ${{ each parameter in parameters }}:
+     - script: echo ${{ parameter.Key }} ${{ parameter.Value }}
